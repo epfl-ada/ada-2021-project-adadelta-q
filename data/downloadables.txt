@@ -1,0 +1,6 @@
+https://zenodo.org/record/4277311/files/quotes-2015.json.bz2?download=1
+https://zenodo.org/record/4277311/files/quotes-2016.json.bz2?download=1
+https://zenodo.org/record/4277311/files/quotes-2017.json.bz2?download=1
+https://zenodo.org/record/4277311/files/quotes-2018.json.bz2?download=1
+https://zenodo.org/record/4277311/files/quotes-2019.json.bz2?download=1
+https://zenodo.org/record/4277311/files/quotes-2020.json.bz2?download=1

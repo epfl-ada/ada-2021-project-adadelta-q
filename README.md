@@ -58,3 +58,10 @@ ada-2021-project-adadelta-q
 │   
 └───src    # for supporting code
 ```
+## Downloading Data
+On any linux system with wget:
+```
+cd data
+wget -i downloadables.txt 
+```
+will download all Quotebank data from 2015 to 2020.
