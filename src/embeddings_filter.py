@@ -6,6 +6,10 @@ import pandas as pd
 import numpy as np
 import fasttext
 from tqdm import tqdm
+import string
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
 
 PATH_TO_FILES = ['data/quotes-2015.json.bz2?download=1', 'data/quotes-2016.json.bz2?download=1', 'data/quotes-2017.json.bz2?download=1', 'data/quotes-2018.json.bz2?download=1']
 
@@ -18,6 +22,7 @@ def data_gen(paths=None):
     :param paths: list of file paths
     :return: generated instances
     """
+
     if paths is None:
         paths = PATH_TO_FILES
     paths = iter(paths)
@@ -26,6 +31,18 @@ def data_gen(paths=None):
             for instance in s_file:
                 instance = json.loads(instance)
                 yield instance
+
+def tokenize(text, stemmer, stopwords):
+    """
+    pre-process quote for training of fasttext
+    :param text: string (quote)
+    :param stemmer: nltk stemmer to be used
+    :param stopwords: nltk stowrods to be used
+    :return:
+    """
+    text = "".join([ch for ch in text if ch not in string.punctuation])
+    tokens = nltk.word_tokenize(text)
+    return " ".join([stemmer.stem(word.lower()) for word in tokens if word not in stopwords])
 
 
 def setup_and_train_fasttext_data(data_generator, filepath=FASTTEXT_FILE, modelpath=FASTTEXT_MODEL_FILE):
@@ -38,17 +55,21 @@ def setup_and_train_fasttext_data(data_generator, filepath=FASTTEXT_FILE, modelp
     """
     if not os.path.exists(filepath):
         print("Writing Fasttext File")
-
+        stemmer = nltk.stem.PorterStemmer()
+        stopwords = nltk.corpus.stopwords.words('english')
         with open(filepath, 'w') as fastfile:
             for d in tqdm(data_generator):
-                fastfile.write(d['quotation'])
+                tokenized = tokenize(d['quotation'], stemmer, stopwords)
+                fastfile.write(tokenized+'\n')
 
     model = fasttext.train_unsupervised(filepath, model='cbow')
     model.save_model(modelpath)
 
 
-def load_embeddings(model_path=FASTTEXT_MODEL_FILE):
+def load_embeddings(model_path=FASTTEXT_MODEL_FILE, get_model=False):
     model = fasttext.load_model(model_path)
+    if get_model:
+        return model
     vocab = model.words
     word_embeddings = np.array([model[word] for word in vocab])
     return word_embeddings, vocab
