@@ -32,7 +32,7 @@ def data_gen(paths=None):
                 instance = json.loads(instance)
                 yield instance
 
-def tokenize(text, stemmer, stopwords):
+def get_tokenizer(stemmer=nltk.stem.PorterStemmer(), stopwords=nltk.corpus.stopwords.words('english')):
     """
     pre-process quote for training of fasttext
     :param text: string (quote)
@@ -40,9 +40,11 @@ def tokenize(text, stemmer, stopwords):
     :param stopwords: nltk stowrods to be used
     :return:
     """
-    text = "".join([ch for ch in text if ch not in string.punctuation])
-    tokens = nltk.word_tokenize(text)
-    return " ".join([stemmer.stem(word.lower()) for word in tokens if word not in stopwords])
+    def tokenizer(text):
+        text = "".join([ch for ch in text if ch not in string.punctuation])
+        tokens = nltk.word_tokenize(text)
+        return " ".join([stemmer.stem(word.lower()) for word in tokens if word not in stopwords])
+    return tokenizer
 
 
 def setup_and_train_fasttext_data(data_generator, filepath=FASTTEXT_FILE, modelpath=FASTTEXT_MODEL_FILE):
@@ -55,11 +57,10 @@ def setup_and_train_fasttext_data(data_generator, filepath=FASTTEXT_FILE, modelp
     """
     if not os.path.exists(filepath):
         print("Writing Fasttext File")
-        stemmer = nltk.stem.PorterStemmer()
-        stopwords = nltk.corpus.stopwords.words('english')
+        tokenize = get_tokenizer()
         with open(filepath, 'w') as fastfile:
             for d in tqdm(data_generator):
-                tokenized = tokenize(d['quotation'], stemmer, stopwords)
+                tokenized = tokenize(d['quotation'])
                 fastfile.write(tokenized+'\n')
 
     model = fasttext.train_unsupervised(filepath, model='cbow')
