@@ -9,6 +9,8 @@ import os
 OUT_PATH = 'data/preprocessed.json.bz2'
 PROBABILITY_THRESHOLD = 0.3
 FASTTEXT_FILEPATH = './data/fasttextfile.txt'
+FASTTEXT_MODELPATH = './data/data.vec'
+KEYWORDS = ['market', 'stock', 'bonds', 'shares', 'obligations']
 
 
 def basic_preprocess(tokenize=ef.get_tokenizer(),dataloader=ef.data_gen(), processed_filepath=OUT_PATH,fasttext_filepath=FASTTEXT_FILEPATH):
@@ -35,6 +37,7 @@ def basic_preprocess(tokenize=ef.get_tokenizer(),dataloader=ef.data_gen(), proce
                 del data['probas']
                 del data['phase']
                 fastfile.write(token)
+                data['tokenized'] = token
                 d_file.write((json.dumps(data)+'\n').encode('utf-8'))
     print('Finished initial Preprocessing')
     print("Total processed Quotees: ", number_of_quotes)
@@ -46,14 +49,30 @@ def basic_preprocess(tokenize=ef.get_tokenizer(),dataloader=ef.data_gen(), proce
 
 
 def main():
-    basic_preprocess(ef.get_tokenizer(), ef.data_gen())
 
     # basic preprocessing
     if not (os.path.exists(OUT_PATH) and os.path.exists(FASTTEXT_FILEPATH)):
         basic_preprocess(ef.get_tokenizer(), ef.data_gen())
 
     # fasttext training
-    ef.setup_and_train_fasttext_data(ef.data_gen(), filepath=FASTTEXT_FILEPATH)
+    if not os.path.exists(FASTTEXT_MODELPATH):
+        ef.setup_and_train_fasttext_data(ef.data_gen(), filepath=FASTTEXT_FILEPATH, modelpath=FASTTEXT_MODELPATH)
+
+    model = ef.load_embeddings(FASTTEXT_MODELPATH, get_model=True)
+    similarity = ef.get_similarity_measure(KEYWORDS, model, tokenizer=None)
+    print("Computing cosine similarities")
+    similarities = []
+    with bz2.open('data/cosine.json.bz2', 'wb') as d_file:
+            for data in tqdm(ef.data_gen([OUT_PATH])):
+                data['cosine_similarity'] = similarity(data['tokenized'].split(' '))
+                similarities.append(data['cosine_similarity'])
+
+                d_file.write((json.dumps(data)+'\n').encode('utf-8'))
+
+    similarities.sort()
+    print("avg similarity: ", sum(similarities)/len(similarities))
+    print("median similarity: ", similarities[int(len(similarities)/2)])
+
 
 
 

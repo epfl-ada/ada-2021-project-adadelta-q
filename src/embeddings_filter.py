@@ -119,7 +119,10 @@ def get_similarity_measure(keywords, model, tokenizer=get_tokenizer(return_as_li
     keywords = [model.get_word_vector(keyword) for keyword in keywords]
 
     def similarity_measure(quote):
-        tokenized = tokenizer(quote)
+        if tokenizer is not None:
+            tokenized = tokenizer(quote)
+        else:
+            tokenized = quote
         embeddings = [model.get_word_vector(word) for word in tokenized]
 
         similarities = [cosine(word, keyword)
