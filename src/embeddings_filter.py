@@ -8,13 +8,20 @@ import fasttext
 from tqdm import tqdm
 import string
 import nltk
+import pypeln as pl
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.spatial.distance import cosine
+
 nltk.download('stopwords')
 nltk.download('punkt')
 
-PATH_TO_FILES = ['data/quotes-2015.json.bz2?download=1', 'data/quotes-2016.json.bz2?download=1', 'data/quotes-2017.json.bz2?download=1', 'data/quotes-2018.json.bz2?download=1']
+PATH_TO_FILES = ['data/quotes-2015.json.bz2?download=1', 'data/quotes-2016.json.bz2?download=1',
+                 'data/quotes-2017.json.bz2?download=1', 'data/quotes-2018.json.bz2?download=1',
+                 'data/quotes-2019.json.bz2?download=1', 'data/quotes-2020.json.bz2?download=1']
 
-FASTTEXT_FILE= 'data/fasttext.txt'
+FASTTEXT_FILE = 'data/fasttext.txt'
 FASTTEXT_MODEL_FILE = 'data/fasttext.vec'
+
 
 def data_gen(paths=None):
     """
@@ -26,13 +33,18 @@ def data_gen(paths=None):
     if paths is None:
         paths = PATH_TO_FILES
     paths = iter(paths)
-    while next(paths):
-        with bz2.open(PATH_TO_FILES[0], 'rb') as s_file:
-            for instance in s_file:
-                instance = json.loads(instance)
-                yield instance
+    for path in paths:
+        with bz2.open(path, 'rb') as s_file:
+            while True:
+                try:
+                    instance = json.loads(next(s_file))
+                    yield instance
+                except StopIteration:
+                    return
 
-def get_tokenizer(stemmer=nltk.stem.PorterStemmer(), stopwords=nltk.corpus.stopwords.words('english')):
+
+def get_tokenizer(stemmer=nltk.stem.PorterStemmer(), stopwords=nltk.corpus.stopwords.words('english'),
+                  return_as_list=False):
     """
     pre-process quote for training of fasttext
     :param text: string (quote)
@@ -40,11 +52,18 @@ def get_tokenizer(stemmer=nltk.stem.PorterStemmer(), stopwords=nltk.corpus.stopw
     :param stopwords: nltk stowrods to be used
     :return:
     """
+
     def tokenizer(text):
         text = "".join([ch for ch in text if ch not in string.punctuation])
         tokens = nltk.word_tokenize(text)
-        return " ".join([stemmer.stem(word.lower()) for word in tokens if word not in stopwords])
+        tokens = [stemmer.stem(word.lower()) for word in tokens if word not in stopwords]
+        if return_as_list:
+            return tokens
+        return " ".join(tokens)
+
     return tokenizer
+
+
 
 
 def setup_and_train_fasttext_data(data_generator, filepath=FASTTEXT_FILE, modelpath=FASTTEXT_MODEL_FILE):
@@ -55,13 +74,25 @@ def setup_and_train_fasttext_data(data_generator, filepath=FASTTEXT_FILE, modelp
     :param modelpath:
     :return:
     """
+
     if not os.path.exists(filepath):
         print("Writing Fasttext File")
         tokenize = get_tokenizer()
+
+        def read_sample(d):
+            return d['quotation']
+
+        def process_sample(quote):
+            return tokenize(quote) + '\n'
+
+        def save_sample(tks):
+            fastfile.write(tks)
+
+
         with open(filepath, 'w') as fastfile:
-            for d in tqdm(data_generator):
-                tokenized = tokenize(d['quotation'])
-                fastfile.write(tokenized+'\n')
+
+            for data in tqdm(data_generator):
+                save_sample(process_sample(read_sample(data)))
 
     model = fasttext.train_unsupervised(filepath, model='cbow')
     model.save_model(modelpath)
@@ -74,6 +105,34 @@ def load_embeddings(model_path=FASTTEXT_MODEL_FILE, get_model=False):
     vocab = model.words
     word_embeddings = np.array([model[word] for word in vocab])
     return word_embeddings, vocab
+
+
+def get_similarity_measure(keywords, model, tokenizer=get_tokenizer(return_as_list=True)):
+    """
+    Given a model and keywords return a function that returns the min distance between the keywords and the
+    given quote
+    :param keywords: the desired keywords to match
+    :param model: the trained model
+    :param tokenizer: the tokenizer to be used (should be the same as used at model training time to match vocabulary)
+    :return: similarity_measure(quote) -> similarity score
+    """
+    keywords = [model.get_word_vector(keyword) for keyword in keywords]
+
+    def similarity_measure(quote):
+        tokenized = tokenizer(quote)
+        embeddings = [model.get_word_vector(word) for word in tokenized]
+
+        similarities = [cosine(word, keyword)
+                        for word in embeddings for keyword in keywords]
+        if len(similarities) > 0:
+            similarity = min(similarities)
+        else:
+            print('No tokens for: ', quote)
+            return 0
+        return similarity
+
+    return similarity_measure
+
 
 def filter_data(fasttext_model):
     # Filter data given a model and the original data, saves as a new single file
