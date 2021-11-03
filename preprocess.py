@@ -6,11 +6,15 @@ from tqdm import tqdm
 import json
 import os
 
-OUT_PATH = 'data/preprocessed.json.bz2'
+OUT_PATH = 'data/final_filtered.json.bz2'
+
+PREPROCESSED_PATH = 'data/preprocessed.json.bz2'
 PROBABILITY_THRESHOLD = 0.3
 FASTTEXT_FILEPATH = './data/fasttextfile.txt'
 FASTTEXT_MODELPATH = './data/data.vec'
 KEYWORDS = ['market', 'stock', 'bonds', 'shares', 'obligations']
+
+COSINE_THRESHOLD = 0.3
 
 
 def basic_preprocess(tokenize=ef.get_tokenizer(),dataloader=ef.data_gen(), processed_filepath=OUT_PATH,fasttext_filepath=FASTTEXT_FILEPATH):
@@ -51,27 +55,41 @@ def basic_preprocess(tokenize=ef.get_tokenizer(),dataloader=ef.data_gen(), proce
 def main():
 
     # basic preprocessing
-    if not (os.path.exists(OUT_PATH) and os.path.exists(FASTTEXT_FILEPATH)):
+    if not (os.path.exists(PREPROCESSED_PATH) and os.path.exists(FASTTEXT_FILEPATH)):
         basic_preprocess(ef.get_tokenizer(), ef.data_gen())
 
     # fasttext training
     if not os.path.exists(FASTTEXT_MODELPATH):
         ef.setup_and_train_fasttext_data(ef.data_gen(), filepath=FASTTEXT_FILEPATH, modelpath=FASTTEXT_MODELPATH)
 
-    model = ef.load_embeddings(FASTTEXT_MODELPATH, get_model=True)
-    similarity = ef.get_similarity_measure(KEYWORDS, model, tokenizer=None)
-    print("Computing cosine similarities")
-    similarities = []
-    with bz2.open('data/cosine.json.bz2', 'wb') as d_file:
-            for data in tqdm(ef.data_gen([OUT_PATH])):
-                data['cosine_similarity'] = similarity(data['tokenized'].split(' '))
-                similarities.append(data['cosine_similarity'])
 
-                d_file.write((json.dumps(data)+'\n').encode('utf-8'))
 
-    similarities.sort()
-    print("avg similarity: ", sum(similarities)/len(similarities))
-    print("median similarity: ", similarities[int(len(similarities)/2)])
+    COSINE_FILE = 'data/cosine.json.bz2'
+    if not os.path.exists(COSINE_FILE):
+        model = ef.load_embeddings(FASTTEXT_MODELPATH, get_model=True)
+        similarity = ef.get_similarity_measure(KEYWORDS, model, tokenizer=None)
+        print("Computing cosine similarities")
+
+        similarities = []
+        with bz2.open(COSINE_FILE, 'wb') as d_file:
+                for data in tqdm(ef.data_gen([OUT_PATH])):
+                    data['cosine_similarity'] = similarity(data['tokenized'].split(' '))
+                    similarities.append(data['cosine_similarity'])
+
+                    d_file.write((json.dumps(data)+'\n').encode('utf-8'))
+
+        similarities.sort()
+        print("avg similarity: ", sum(similarities)/len(similarities))
+        print("median similarity: ", similarities[int(len(similarities)/2)])
+
+    if not os.path.exists(OUT_PATH):
+        final_count = 0
+        with bz2.open(OUT_PATH, 'wb') as d_file:
+            for data in tqdm(ef.data_gen([COSINE_FILE])):
+                if data['cosine_similarity'] < COSINE_THRESHOLD:
+                    final_count += 1
+                    d_file.write((json.dumps(data) + '\n').encode('utf-8'))
+        print("Finished Preprocessing, final number of quotes:", final_count)
 
 
 
