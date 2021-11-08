@@ -12,9 +12,14 @@ This is the group project repository for the group ADADELTA-Q of the EPFL Applie
 The Idea of this project is to construct a general pipeline to identify trends within a topic/community subset of the [Quotebank](https://zenodo.org/record/4277311#.YX0LcpuxW0o) dataset and identify the individuals that have set a trend and those that are following it.
 We further intend to apply the pipeline directly to stock data.
 ## Research Questions
+1. Do the published quotations impact the market stock value? 
+2. After how long can we notice the effect of the quotations?
+3. Which are the people that have affected it the most? Are them always the same?
+4. The words said by one person are sufficient for having an impact on it, or they became relevant when other people sustain them? 
 
 ## Proposed Additional Datasets
 ### Stock Data
+We will need the SPY(S&P500) dataset from 2015-2020 that we can find from the yahoofinance library (we will consider just the "Close" column of the dataframe that represents the final S&P500 daily value).
 ## Methods
 ### Topic Filter
 We obtain fasttext word vectors by training fasttext on the entire dataset. We define a set of keywords for our topic. 
