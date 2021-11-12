@@ -12,7 +12,7 @@ This is the group project repository for the group ADADELTA-Q of the EPFL Applie
 The goal of this project is to construct a pipeline that allows to identify those individuals whose quotes have an impact on the stock market and its fluctuations. We use the [Quotebank](https://zenodo.org/record/4277311#.YX0LcpuxW0o) dataset as it includes a large amount of quotations from different sources since 2015. We filter these quotes to retain only quotations related to the stock market. Then, we classify the sentiment of each quote as either positive, neutral, or negative, and we study whether for each individual these sentiments are correlated with a sudden change in the US stock market.
 ![General Overview of Data Pipeline](./data/diagram_ada.png "Proposed Pipeline")
 ## Research Questions
-According to the Efficient Market Hypothesis, the asset prices of the stock exchange reflect the value of the given assets given all the information available at a certain moment in time. Therefore, new information is expected to lead to a larger volume of assets exchange and changes in prices. Even less informative news by influential people might change the expectation of investors and lead to change in prices. Who has this influence on the market? This is the main research goal of this project, which we want to study by studying the following research questions:
+According to the Efficient Market Hypothesis, asset prices reflect the value of the given assets given all the information available at a certain moment in time. Therefore, new information is expected to lead to changes in prices and more assets being traded. Even less informative news by influential people might change the expectation of investors and lead to change in prices. Who has this influence on the market? This is the main research goal of this project, which we want to study by studying the following research questions:
 1. To what extent do published quotations impact the stock market? 
 2. After how long can we notice the effect of the quotations?
 3. Which are the people that have affected it the most? Are they always the same?
@@ -51,7 +51,7 @@ Since Quotebank has been developed using BERT, this model was our first choice. 
 The fastest and easiest to implement method was VADER from the NLTK library. An experiment done with 1000 quotations showed us that a large percentage of times the vader model simply classified a quotation as neutral even if the sentiment was clearly more radical. 
 
 #### Transfer Learning 
-In the past years "Zero-Shot NLP models" have been popularized, which are pre-trained models able to perform well on unseen and unlabeled data without needing fine-tuning. 
+Lately, "Zero-Shot NLP models" have been popularized, which are pre-trained models able to perform well on unseen and unlabeled data without needing fine-tuning. 
 The models available in the Transformers' library are trained using the Natural Language Inference (NLI) approach. Using the same 1000 quotations [we used for testing](https://github.com/epfl-ada/ada-2021-project-adadelta-q/blob/Luca/sentiment_analysis.ipynb) VADER and using the default model roberta-large-mnli, we found a more intuitive and reasonable classification of the sentences' polarities. We will thus use this method to classify all the quotations. 
 The running time will be significant, but feasible.
 
