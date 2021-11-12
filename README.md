@@ -19,7 +19,17 @@ According to the Efficient Market Hypothesis, the asset prices of the stock exch
 4. The words said by one person are sufficient for having an impact on it, or they became relevant when other people sustain them? 
 
 ## Data
-In order to perfrom the aforementioned analysis we will employ the [Quotebank](https://zenodo.org/record/4277311#.YX0LcpuxW0o) dataset considering only the years from 2015 until 2020. On the other hand, we will make use of the yahoofinaince library in order to gather the required data regarding the stock market. More precisely, we will employ the S&P500 index since it is often empployed as a proxy for the evolution of the market, and in particular we will perfrom the analysis using both the value itself of the index as well as the traded volume to account for possible opposite effects on different stocks.
+
+### Quotebank
+In order to perfrom the aforementioned analysis we will employ the [Quotebank](https://zenodo.org/record/4277311#.YX0LcpuxW0o) dataset considering only the years from 2015 until 2020. 
+
+### Stock Data
+On the other hand, we will make use of the SPY(S&P500) dataset from 2015 until 2020 that can be retrieved from the yahoofinaince library in order to gather the required data regarding the stock market. We employ the S&P500 index since it is often used as a proxy for the general market trend. We will perform the analysis using both the daily closing value of the index ("Close") as well as the traded volume ("Volume"). The latter is employed to account for the fact that certain events (e.g. publsihed quotes) might have opposite effects on different stocks included in the index leading to a zero-net change in the index value, instead we would detect a spike on the volume traded.
+
+#### Preprocessing
+A quick EDA revealed multiple missing values corresponding to festivites or weekend days, as expected. We will deal with this challenge in two ways and then compare the conclusions:
+- We consider only the very short-term effect that a quotation might have on the market and thus we discard all the events happening during the weekend becayse such short term effect would not be detected.
+- We consider a longer-term effects (the market might take some time to adjust) and in this case we do consider the events happening during the weekend and thus we interpolate the S&P500 values. This second approach might be more challenging because the larger the time-span consider, the harder it is to isolate the relation between the quoteation and the market since other events could happen in between.
 
 ## Methodology
 The pipeline of the methods used in order to perfrom the analysis can be summarized as follows:
