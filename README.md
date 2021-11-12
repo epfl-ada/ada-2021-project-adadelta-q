@@ -30,7 +30,7 @@ From [Quotebank](https://zenodo.org/record/4277311#.YX0LcpuxW0o), we only consid
 We will make use of the SPY(S&P500) dataset from 2015 until 2020 that can be retrieved from the yahoofinance library. We employ the S&P500 index since it is often used as a proxy for the general market trend. We will perform the analysis using both the daily closing value of the index ("Close") as well as the traded volume ("Volume"). The latter is employed to account for the fact that certain events (e.g. published quotations) might have opposite effects on different stocks included in the index leading to a zero-net change in the index value, instead we would detect a spike on the volume traded.
 
 #### Preprocessing
-The EDA revealed multiple missing values corresponding to festivities or weekend days, as expected. We will deal with this challenge in two ways and then compare the conclusions:
+The [EDA](https://github.com/epfl-ada/ada-2021-project-adadelta-q/blob/icapado-patch-1/S%26P500_analysis.ipynb) revealed multiple missing values corresponding to festivities or weekend days, as expected. We will deal with this challenge in two ways and then compare the conclusions:
 - We consider only the very short-term effect that a quotation might have on the market and thus we discard all the events happening during the weekend because such short term effect would not be detected.
 - We consider a longer-term effects (the market might take some time to adjust) and in this case we do consider the events happening during the weekend and thus we interpolate the S&P500 values. This second approach might be more challenging because the larger the time-span considered, the harder it is to isolate the relation between the quotation and the market since other events could happen in between.
 
@@ -43,13 +43,13 @@ The selection of the quotes that are relevant to the topic of financial markets 
 To perform this step we considered three possible options: unsupervised methods, pre-trained BERT, or transfer learning. 
 
 #### Pre-trained BERT
-Since Quotebank has been developed using BERT, this model was our first choice. The pre-trained BERT was not able to correctly detect the polarities of two simple artificial sentences, which shows the need of fine-tuning the model for our task. Since we do not have labeled data, we looked into unsuerpvsied methods. 
+Since Quotebank has been developed using BERT, this model was our first choice. The pre-trained BERT was not able to correctly detect the polarities of two simple artificial sentences, which shows the need of fine-tuning the model for our task. Since we do not have labeled data, we looked into unsurpassed methods. 
 
 #### Unsupervised methods
-The fastest and easiest to implement method was VADER from the NLTK library. An experiment done with 1000 quotations showed us that a large percentage of times the vader model simply classified a quoation as neutral even if the sentiment was clearly more radical. 
+The fastest and easiest to implement method was VADER from the NLTK library. An experiment done with 1000 quotations showed us that a large percentage of times the vader model simply classified a quotation as neutral even if the sentiment was clearly more radical. 
 
 #### Transfer Learning 
-In the past years, a large attention has been dedicated to the so called "Zero-Shot NLP models", which are pre-trained models able to perform well on unseen and unlabled data without needing fine-tuning. We use the Transformers library which employs models from the Hugging Face hub. The models available in the Transformers library are trained using the Natural Language Inference (NLI) approach. Using the same 1000 quotations we used for testing VADER and using the default model roberta-large-mnli, we found a more intuitive and reasonable classification of the sentences' polarities. We will thus use this method to classify all the quotations. The running time will be significant (it took approximately 1 hour for 1000 sentences), but since we only need to do it once it is feasible.
+In the past years, a large attention has been dedicated to the so called "Zero-Shot NLP models", which are pre-trained models able to perform well on unseen and unlabeled data without needing fine-tuning. We use the Transformers' library which employs models from the Hugging Face hub. The models available in the Transformers' library are trained using the Natural Language Inference (NLI) approach. Using the same 1000 quotations [we used for testing](https://github.com/epfl-ada/ada-2021-project-adadelta-q/blob/Luca/sentiment_analysis.ipynb) VADER and using the default model roberta-large-mnli, we found a more intuitive and reasonable classification of the sentences' polarities. We will thus use this method to classify all the quotations. The running time will be significant (it took approximately 1 hour for 1000 sentences), but since we only need to do it once it is feasible.
 
 ### Correlation analysis
 Once the market-related quotes are seleteced and classified according to their sentiment, we combine this data with the stock market data described above. As a first  
@@ -131,4 +131,4 @@ or
 ```
 conda create --name <env> --file requirements-v2.txt
 ```
-if you are facing compatibility issues the other install
+if you are facing compatibility issues the other install.
