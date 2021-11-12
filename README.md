@@ -55,7 +55,10 @@ In the past years, a large attention has been dedicated to the so called "Zero-S
 Once the market-related quotes are selected and classified according to their sentiment, we combine this data with the stock market data described above. We plan on doing this in two steps:
 1. We compare the correlation between single speakers and the stock market
 2. Among the speakers which do have a correlation, we want to move from correlation more to causation, i.e. those that show the strongest relations. 
+
 We plan on utilizing granger causality and hypothesis testing.
+
+*Some feedback/input on this point from the TA is highly appreciated!*
 
 ## Proposed Timeline
 
