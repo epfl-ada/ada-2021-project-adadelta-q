@@ -1,28 +1,27 @@
 import os
-import torch
 import bz2
 import json
-import pandas as pd
 import numpy as np
 import fasttext
 from tqdm import tqdm
 import string
 import nltk
-import pypeln as pl
-from sklearn.metrics.pairwise import cosine_similarity
+
 from scipy.spatial.distance import cosine
 
+from dask import dataframe as ddf
 nltk.download('stopwords')
 nltk.download('punkt')
 
-PATH_TO_FILES = ['data/quotes-2015.json.bz2?download=1', 'data/quotes-2016.json.bz2?download=1',
-                 'data/quotes-2017.json.bz2?download=1', 'data/quotes-2018.json.bz2?download=1',
-                 'data/quotes-2019.json.bz2?download=1', 'data/quotes-2020.json.bz2?download=1']
+PATH_TO_FILES = ['data/quotes-2015.json.bz2', 'data/quotes-2016.json.bz2',
+                 'data/quotes-2017.json.bz2', 'data/quotes-2018.json.bz2',
+                 'data/quotes-2019.json.bz2', 'data/quotes-2020.json.bz2']
 
 FASTTEXT_FILE = 'data/fasttext.txt'
 FASTTEXT_MODEL_FILE = 'data/fasttext.vec'
 
 
+# @dask_delayed
 def data_gen(paths=None):
     """
     iterator over all given paths
@@ -33,6 +32,7 @@ def data_gen(paths=None):
     if paths is None:
         paths = PATH_TO_FILES
     paths = iter(paths)
+
     for path in paths:
         with bz2.open(path, 'rb') as s_file:
             while True:
@@ -40,7 +40,16 @@ def data_gen(paths=None):
                     instance = json.loads(next(s_file))
                     yield instance
                 except StopIteration:
-                    return
+                    break
+
+
+def get_dast_df(paths=None):
+    if paths is None:
+        paths = PATH_TO_FILES
+
+    dataf = ddf.read_json(paths, compression='bz2')
+
+    return dataf
 
 
 def get_tokenizer(stemmer=nltk.stem.PorterStemmer(), stopwords=nltk.corpus.stopwords.words('english'),
@@ -99,6 +108,12 @@ def setup_and_train_fasttext_data(data_generator, filepath=FASTTEXT_FILE, modelp
 
 
 def load_embeddings(model_path=FASTTEXT_MODEL_FILE, get_model=False):
+    """
+    Load embeddings from fasttext model
+    :param model_path: path to fasttext model
+    :param get_model: return the whole model
+    :return: whoole model if return_model=true, o.w. only embeedings and vocab are returned as tuple
+    """
     model = fasttext.load_model(model_path)
     if get_model:
         return model
@@ -137,8 +152,3 @@ def get_similarity_measure(keywords, model, tokenizer=get_tokenizer(return_as_li
     return similarity_measure
 
 
-def filter_data(fasttext_model):
-    # Filter data given a model and the original data, saves as a new single file
-    # returns: filepath to new file
-    # TODO: Find criteria to filter: top percentiles? Similarities according to data?
-    raise NotImplementedError
