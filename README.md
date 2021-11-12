@@ -115,7 +115,10 @@ Should be confirmed with [webiste](https://dlab.epfl.ch/teaching/fall2021/cs401/
 ```
 ada-2021-project-adadelta-q
 │   README.md
-│   notebook.ipynb    
+│   filtering.py    # filtering script to process entire dataset
+│   filtering_tests.ipynb    # some basic tests on filtering
+│   sentiment_analyisis.ipynb # Sentiment analiysis tetss
+│ 
 └───data  # store data here (will be ignored by git)
 │   
 └───src    # for supporting code
@@ -133,8 +136,4 @@ To setup, run:
 ```
 conda create --name <env> --file requirements.txt
 ```
-or 
-```
-conda create --name <env> --file requirements-v2.txt
-```
-if you are facing compatibility issues the other install.
+
