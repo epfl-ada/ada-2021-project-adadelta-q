@@ -61,7 +61,7 @@ We propose the following timeline (numbers refer to list [here](#organization-wi
 - [ ] P2:
   - [ ] 1., 2. fully and 3. partially implemented
   - [ ] Feasibility analysis of 4.-7.
-  - [ ] Readme
+  - [ ] README.md
   - [ ] Notebook
 - [ ] P3:
    - [ ] Updated Readme
@@ -71,16 +71,16 @@ Should be confirmed with [webiste](https://dlab.epfl.ch/teaching/fall2021/cs401/
 ## Organization within Team
 
 1. Filter Quotebank data using a semantic filter to obtain a subset of topic relevant data.:
-   - [ ] Identify most suitable (pretrained) filter (fasttext)
-   - [ ] Apply filter
-   - [ ] Fine-Tune Hyperparameters (e.g. cutoff values) to get reasonably sized data
+   - [x] Identify most suitable (pretrained) filter (fasttext)
+   - [x] Apply filter
+   - [x] Fine-Tune Hyperparameters (e.g. cutoff values) to get reasonably sized data
 2. Process data so that quotes can easily be matched to speakers
    - [ ] Remove irrelevant data (could also be done in 1.)
    - [ ] Group by speakers
 3. Apply a sentiment classifier with respect to a topic
-   - [ ] Identify suitable (pretrained on news data) sentiment filter (fasttext/BERT)
-   - [ ] Apply
-   - [ ] Fine-tune
+   - [x] Identify suitable (pretrained on news data) sentiment filter (fasttext/BERT)
+   - [x] Apply
+   - [x] Fine-tune
 4. Merge topic speakers with time-series of topic data (e.g. S&P500)
    - [ ] Identify what stock/index we want
    - [ ] Specification of what data format we need (Granularity, Fields)
@@ -124,5 +124,4 @@ To setup, run:
 ```
 conda create --name <env> --file requirements.txt
 ```
-### Bibliography 
-- Hutto, C., & Gilbert, E. (2014). Vader: A parsimonious rule-based model for sentiment analysis of social media text. In *Proceedings of the International AAAI Conference on Web and Social Media* (Vol. 8, No. 1).
+
