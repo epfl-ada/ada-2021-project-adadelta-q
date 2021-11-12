@@ -118,7 +118,7 @@ ada-2021-project-adadelta-q
 │   filtering.py    # filtering script to process entire dataset
 │   filtering_tests.ipynb    # some basic tests on filtering
 │   sentiment_analyisis.ipynb # Sentiment analiysis tetss
-│ 
+│   S\&P500_analysis.ipynb # Stock data trials
 └───data  # store data here (will be ignored by git)
 │   
 └───src    # for supporting code
