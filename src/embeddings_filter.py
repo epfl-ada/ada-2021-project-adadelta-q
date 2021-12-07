@@ -42,16 +42,6 @@ def data_gen(paths=None):
                 except StopIteration:
                     break
 
-
-def get_dast_df(paths=None):
-    if paths is None:
-        paths = PATH_TO_FILES
-
-    dataf = ddf.read_json(paths, compression='bz2')
-
-    return dataf
-
-
 def get_tokenizer(stemmer=nltk.stem.PorterStemmer(), stopwords=nltk.corpus.stopwords.words('english'),
                   return_as_list=False):
     """
@@ -122,7 +112,7 @@ def load_embeddings(model_path=FASTTEXT_MODEL_FILE, get_model=False):
     return word_embeddings, vocab
 
 
-def get_similarity_measure(keywords, model, tokenizer=get_tokenizer(return_as_list=True)):
+def get_similarity_measure(keyvector, model, tokenizer=get_tokenizer(return_as_list=True)):
     """
     Given a model and keywords return a function that returns the min distance between the keywords and the
     given quote
@@ -131,7 +121,6 @@ def get_similarity_measure(keywords, model, tokenizer=get_tokenizer(return_as_li
     :param tokenizer: the tokenizer to be used (should be the same as used at model training time to match vocabulary)
     :return: similarity_measure(quote) -> similarity score
     """
-    keywords = [model.get_word_vector(keyword) for keyword in keywords]
 
     def similarity_measure(quote):
         if tokenizer is not None:
@@ -140,8 +129,8 @@ def get_similarity_measure(keywords, model, tokenizer=get_tokenizer(return_as_li
             tokenized = quote
         embeddings = [model.get_word_vector(word) for word in tokenized]
 
-        similarities = [cosine(word, keyword)
-                        for word in embeddings for keyword in keywords]
+        similarities = [cosine(word, keyvector)
+                        for word in embeddings]
         if len(similarities) > 0:
             similarity = min(similarities)
         else:

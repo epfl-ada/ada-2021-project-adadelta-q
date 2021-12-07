@@ -1,5 +1,7 @@
 import os.path
 
+import numpy as np
+
 import src.embeddings_filter as ef
 import bz2
 from tqdm import tqdm
@@ -9,17 +11,18 @@ import dask.dataframe as dd
 
 from dask.diagnostics import ProgressBar
 
-OUT_PATH = 'data/final_filtered.json.bz2'  # loaction of the final .json output file
+OUT_PATH = 'data/final_filtered.json.bz2'  # location of the final .json output file
 
-PREPROCESSED_PATH = 'data/preprocessed.json.bz2'  # location to store preprocessed data (with tokens + filtered)
+PREPROCESSED_PATH = 'data/preprocessed.json.bz2'  # location to store preprocessed data (with tokens + basic filtered)
 PROBABILITY_THRESHOLD = 0.3  # Threshould to filter out 'too uncertain' speaker-quote match)
 FASTTEXT_FILEPATH = './data/fasttextfile.txt'  # filepath to the fasttext input file (tokenized, line-by-line)
 FASTTEXT_MODELPATH = './data/data.vec'  # where fasttext model should be saved/loaded
 KEYWORDS = ['market', 'stock', 'bonds', 'shares', 'obligations']  # Keywords to compare against
 COSINE_THRESHOLD = 0.3  # similarity threshold
+COSINE_FILE = 'data/cosine.json.bz2'
 
 
-def basic_preprocess(tokenize=ef.get_tokenizer(), dataloader=ef.data_gen(), processed_filepath=OUT_PATH,
+def basic_preprocess(tokenize=ef.get_tokenizer(), dataloader=ef.data_gen(), processed_filepath=PREPROCESSED_PATH,
                      fasttext_filepath=FASTTEXT_FILEPATH):
     number_of_quotes = 0
     dropped_none = 0
@@ -56,67 +59,6 @@ def basic_preprocess(tokenize=ef.get_tokenizer(), dataloader=ef.data_gen(), proc
     print("Total Quotes written: ", number_of_quotes - dropped_no_token - dropped_prob - dropped_none)
 
 
-def dask_basic_preprocess():
-    """
-    Feasibilyt study, do not use currently
-    :return: preprocessed data
-    """
-    assert False, 'Dask preprocessor not working yet, use lower perfromance basic_preporcess'
-    tokenize = ef.get_tokenizer()
-
-    def reader(paths):
-        for path in paths:
-            with bz2.open(path, 'rb') as s_file:
-                def get_next():
-
-                    while True:
-                        try:
-                            return json.loads(next(s_file))
-                        except StopIteration:
-                            next(paths)
-        return get_next
-
-    def strip_vals(data):
-        data = data.copy()
-        if data['speaker'] == 'None':
-            return None
-        if float(data['probas'][0][1]) < PROBABILITY_THRESHOLD:
-            return None
-        token = tokenize(data['quotation']) + '\n'
-        if len(token) == 0:
-            return None
-        del data['probas']
-        del data['phase']
-        data['tokenized'] = token
-        return data
-
-    def save(instance):
-        if instance is not None:
-            json_line = (json.dumps(instance) + '\n').encode('utf-8')
-            with open(FASTTEXT_FILEPATH, 'w') as fastfile:
-                with bz2.open(OUT_PATH, 'wb') as d_file:
-                    fastfile.write(instance['tokenized'])
-                    d_file.write(json_line)
-
-    def run_preprocess(instance):
-        instance = strip_vals(instance)
-        save(instance)
-
-    print('Running Dask')
-    df = dd.read_json(
-        ['data/quotes-2015.json', 'data/quotes-2016.json', 'data/quotes-2017.json', 'data/quotes-2018.json',
-         'data/quotes-2019.json', 'data/quotes-2020.json'], blocksize=2 ** 18)
-    with ProgressBar():
-        # df.apply(run_preprocess, axis=1, meta=None).compute()
-        # b.map(run_preprocess).compute()
-        # print(df[df['speaker']=='None'].count().compute())
-        df.drop(df['speaker'] == 'None', axis=1)
-        df.drop(float(df['probas'][0][1] < PROBABILITY_THRESHOLD), axis=1)
-        df.drop(columns=['probas', 'phase'])
-        df['token'] = tokenize(df['quotation']) + '\n'
-        df.to_parquet('data/parquet').compute()
-
-
 def main():
     if not (os.path.exists(PREPROCESSED_PATH) and os.path.exists(FASTTEXT_FILEPATH)):
         basic_preprocess(ef.get_tokenizer(), ef.data_gen())
@@ -125,15 +67,16 @@ def main():
     if not os.path.exists(FASTTEXT_MODELPATH):
         ef.setup_and_train_fasttext_data(ef.data_gen(), filepath=FASTTEXT_FILEPATH, modelpath=FASTTEXT_MODELPATH)
 
-    COSINE_FILE = 'data/cosine.json.bz2'
     if not os.path.exists(COSINE_FILE):
         model = ef.load_embeddings(FASTTEXT_MODELPATH, get_model=True)
-        similarity = ef.get_similarity_measure(KEYWORDS, model, tokenizer=None)
+        keyvector = sum([model.get_word_vector(keyword) for keyword in KEYWORDS]) / len(KEYWORDS)
+
+        similarity = ef.get_similarity_measure(keyvector, model, tokenizer=None)
         print("Computing cosine similarities")
 
         similarities = []
         with bz2.open(COSINE_FILE, 'wb') as d_file:
-            for data in tqdm(ef.data_gen([OUT_PATH])):
+            for data in tqdm(ef.data_gen([PREPROCESSED_PATH])):
                 data['cosine_similarity'] = similarity(data['tokenized'].split(' '))
                 similarities.append(data['cosine_similarity'])
 
@@ -142,6 +85,7 @@ def main():
         similarities.sort()
         print("avg similarity: ", sum(similarities) / len(similarities))
         print("median similarity: ", similarities[int(len(similarities) / 2)])
+        np.save(os.path.join('data', 'similarities_as_list.npy'), np.asarray(similarities))
 
     if not os.path.exists(OUT_PATH):
         final_count = 0
