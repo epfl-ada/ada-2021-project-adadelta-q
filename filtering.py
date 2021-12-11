@@ -17,7 +17,8 @@ PREPROCESSED_PATH = 'data/preprocessed.json.bz2'  # location to store preprocess
 PROBABILITY_THRESHOLD = 0.3  # Threshould to filter out 'too uncertain' speaker-quote match)
 FASTTEXT_FILEPATH = './data/fasttextfile.txt'  # filepath to the fasttext input file (tokenized, line-by-line)
 FASTTEXT_MODELPATH = './data/data.vec'  # where fasttext model should be saved/loaded
-KEYWORDS = ['market', 'stock', 'bonds', 'shares', 'obligations']  # Keywords to compare against
+KEYWORDS = ['stockmarket', 'stock', 'bonds', 'shares', 'obligations', 'finance']  # Keywords to compare against
+# more keywords to try: finance,
 COSINE_THRESHOLD = 0.3  # similarity threshold
 COSINE_FILE = 'data/cosine.json.bz2'
 
@@ -69,8 +70,8 @@ def main():
 
     if not os.path.exists(COSINE_FILE):
         model = ef.load_embeddings(FASTTEXT_MODELPATH, get_model=True)
-        keyvector = sum([model.get_word_vector(keyword) for keyword in KEYWORDS]) / len(KEYWORDS)
-
+        # keyvector = sum([model.get_word_vector(keyword) for keyword in KEYWORDS]) / len(KEYWORDS)
+        keyvector = np.median(np.asarray([model.get_word_vector(keyword) for keyword in KEYWORDS]), axis=0)
         similarity = ef.get_similarity_measure(keyvector, model, tokenizer=None)
         print("Computing cosine similarities")
 

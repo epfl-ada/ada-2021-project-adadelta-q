@@ -112,7 +112,7 @@ def load_embeddings(model_path=FASTTEXT_MODEL_FILE, get_model=False):
     return word_embeddings, vocab
 
 
-def get_similarity_measure(keyvector, model, tokenizer=get_tokenizer(return_as_list=True)):
+def get_similarity_measure(keyvector, model, tokenizer=get_tokenizer(return_as_list=True), metric='min'):
     """
     Given a model and keywords return a function that returns the min distance between the keywords and the
     given quote
@@ -132,10 +132,13 @@ def get_similarity_measure(keyvector, model, tokenizer=get_tokenizer(return_as_l
         similarities = [cosine(word, keyvector)
                         for word in embeddings]
         if len(similarities) > 0:
-            similarity = min(similarities)
+            if metric == 'mean':
+                similarity = sum(similarities)/len(similarities)
+            else:
+                similarity = min(similarities)
         else:
             print('No tokens for: ', quote)
-            return 0
+            return 999
         return similarity
 
     return similarity_measure
