@@ -17,6 +17,13 @@ PATH_TO_FILES = ['data/quotes-2015.json.bz2', 'data/quotes-2016.json.bz2',
                  'data/quotes-2017.json.bz2', 'data/quotes-2018.json.bz2',
                  'data/quotes-2019.json.bz2', 'data/quotes-2020.json.bz2']
 
+DOWNLOAD_LINKS = ['https://zenodo.org/record/4277311/files/quotes-2015.json.bz2?download=1',
+                  'https://zenodo.org/record/4277311/files/quotes-2016.json.bz2?download=1',
+                  'https://zenodo.org/record/4277311/files/quotes-2017.json.bz2?download=1',
+                  'https://zenodo.org/record/4277311/files/quotes-2018.json.bz2?download=1',
+                  'https://zenodo.org/record/4277311/files/quotes-2019.json.bz2?download=1',
+                  'https://zenodo.org/record/4277311/files/quotes-2020.json.bz2?download=1']
+
 FASTTEXT_FILE = 'data/fasttext.txt'
 FASTTEXT_MODEL_FILE = 'data/fasttext.vec'
 
