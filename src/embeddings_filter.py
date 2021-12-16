@@ -6,7 +6,7 @@ import fasttext
 from tqdm import tqdm
 import string
 import nltk
-
+import pyarrow as pa
 from scipy.spatial.distance import cosine
 
 from dask import dataframe as ddf
@@ -41,6 +41,10 @@ def data_gen(paths=None):
                     yield instance
                 except StopIteration:
                     break
+
+def to_parquet(paths=None):
+    gen = data_gen(paths)
+
 
 def get_tokenizer(stemmer=nltk.stem.PorterStemmer(), stopwords=nltk.corpus.stopwords.words('english'),
                   return_as_list=False):

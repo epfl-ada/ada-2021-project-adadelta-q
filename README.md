@@ -76,7 +76,7 @@ We propose the following timeline (numbers refer to list [here](#organization-wi
   - [x] Feasibility analysis of 4.-7.
   - [x] README.md
   - [x] Notebook
-- [ ] P3:
+- [] P3:
    - [ ] Updated Readme
    - [ ] Updated Notebook
    - [ ] Data Story
@@ -96,11 +96,11 @@ Should be confirmed with [webiste](https://dlab.epfl.ch/teaching/fall2021/cs401/
    - [x] Fine-tune
 4. Merge topic speakers with time-series of topic data (e.g. S&P500)
    - [x] Identify what stock/index we want
-   - [ ] Specification of what data format we need (Granularity, Fields)
+   - [x] Specification of what data format we need (Granularity, Fields)
    - [x] Identify suitable Data source (e.g [Yahoo finance](https://pypi.org/project/yfinance/) / [SimFin](https://github.com/SimFin/simfin) ) 
-   - [ ] Obtain (API Keys?) Data
-   - [ ] Preprocess stock  (remove irrelevant fields, ensure easy format for merging)
-   - [ ] Merge data
+   - [x] Obtain (API Keys?) Data
+   - [x] Preprocess stock  (remove irrelevant fields, ensure easy format for merging)
+   - [x] Merge data
 5. Filter speakers that have low/now correlation with topic data
    - [ ] Identify how, e.g. [Granger Causailty](https://en.wikipedia.org/wiki/Granger_causality)
 6. Compare speakers with each other
