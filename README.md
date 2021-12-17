@@ -59,7 +59,7 @@ Lately, "Zero-Shot NLP models" have been popularized, which are pre-trained mode
 The models available in the Transformers' library are trained using the Natural Language Inference (NLI) approach. Using the same 1000 quotations [we used for testing](https://github.com/epfl-ada/ada-2021-project-adadelta-q/blob/Luca/sentiment_analysis.ipynb) VADER and using the default model roberta-large-mnli, we found a more intuitive and reasonable classification of the sentences' polarities. We will thus use this method to classify all the quotations. 
 The running time is around 20 hours on a ryzen 5900 with an RTX 3060Ti graphics card.
 
-### Correlation analysis
+#### Correlation analysis
 Once the market-related quotes are selected and classified according to their sentiment, we combine this data with the stock market data described above. We plan on doing this into two different ways:
 1. We compare the correlation between single speakers quotes sentiment and the daily variation of the stock market.
 2. For each speaker we test whether the traded volume is larger on average in the days when they expressed one or more sentiment-carrying quotes. 
