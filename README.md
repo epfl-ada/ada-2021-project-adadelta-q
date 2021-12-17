@@ -43,7 +43,7 @@ The pipeline of the methods can be summarized as follows:
 ### Topic Filtering
 The selection of the quotes that are relevant to the topic of financial markets is done using vector representations of words, in particular we employ [fastText](https://fasttext.cc/) , a state-of-the-art model for text representations. 
 We tokenize the data and convert to lower case, removing any english stopwords. 
-We then train the model using the standard unsupervised fastText. This way, each quote is transformed into a set of word embeddings. We define a set of keywords that we consider representative of the topic we are analyzing, i.e.`[stock market, stock, bonds, shares, obligations, finance]` and compute the mean vector representation of each word. We then compare the embedding of each word in a quote to the computed key word vector and choose the closest distance as representative value for similarity of the whole quote. We filter quotes by some threshold of similarity to reduce data.
+We then train the model using the standard unsupervised fastText. This way, each quote is transformed into a set of word embeddings. We define a set of keywords that we consider representative of the topic we are analyzing, i.e.`[stock market, stock, bonds, shares, obligations, finance]` and compute the median vector representation of the words. We then compare the embedding of each word in a quote to the computed key word vector and choose the closest distance as representative value for similarity of the whole quote. We filter quotes by some threshold of similarity to reduce data.
 
 ### Sentiment Classification
 To perform this step we considered three possible options: unsupervised methods, pre-trained BERT, or transfer learning. 
@@ -113,6 +113,9 @@ Should be confirmed with [webiste](https://dlab.epfl.ch/teaching/fall2021/cs401/
    - [x] [Report any issues related to Quotebank](https://docs.google.com/forms/d/e/1FAIpQLSfe14V9gKV3chVSC7_Y_mTIJz_YcvgbIaxGSESmH1kS9RbcZA/viewform)
    - [x] Final Notebook
    - [x] Datastory
+
+To avoid confusion we would like to point out that our team met regularly during the course of the semester to work on the project together and each member contributed to the development in all stages both with code, text and ideas on how to improve the project.
+The work was never soley done by a subset of the team.
 ## Appendix
 
 ### Repository Structure
