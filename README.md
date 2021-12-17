@@ -1,5 +1,6 @@
 # ADADELTA-Q Project Repository: 'Whose Sentiment towards the Market influences the Market Sentiment?'
 This is the group project repository for the group ADADELTA-Q of the EPFL Applied Data Analysis (2021) course.
+## [Datastory Here](https://github.com/sreding/adadeltaq-finstory)
 ## Table of Contents
 1. [Abstract](#abstract)
 2. [Research Questions](#research-questions)
@@ -148,8 +149,8 @@ where `<env>` is the desired environment name.
 ### Running the preprocessing code
 ```shell
 conda activate <env>
-python main.py
+python main.py --use_pretrained
 ```
-This will download the entire dataset and run the entire preprocessing pipeline, including topic filtering and augmentation with sentiments.
+
 As the entire pipeline can take 24+ hours to finish and is subject to certain requirements, such as a cuda-capable GPU to finish in a reasonable timeframe, we have added the option to download the preprocessed data directly.
-Simply add the option `--use_pretrained` to download the filtered dataset directly.
+If you desire to re-run the entire pipeline, remove `--use_pretrained`

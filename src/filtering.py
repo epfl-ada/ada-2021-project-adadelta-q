@@ -13,7 +13,7 @@ import pandas as pd
 
 OUT_PATH = 'data/final_filtered.json.bz2'  # location of the final .json output file
 
-PREPROCESSED_PATH = 'data/preprocessed.json.bz2'  # location to store preprocessed data (with tokens + basic filtered)
+PREPROCESSED_PATH = 'full_set.parquet.gzip'  # location to store preprocessed data (with tokens + basic filtered)
 PROBABILITY_THRESHOLD = 0.3  # Threshold to filter out 'too uncertain' speaker-quote match)
 FASTTEXT_FILEPATH = './data/fasttextfile.txt'  # filepath to the fasttext input file (tokenized, line-by-line)
 FASTTEXT_MODELPATH = './data/data.vec'  # where fasttext model should be saved/loaded
@@ -54,7 +54,7 @@ def basic_preprocess(tokenize=ef.get_tokenizer(), dataloader=ef.data_gen(), proc
         table = process(df)
         print(table.schema)
         print(df)
-        with pq.ParquetWriter(os.path.join('data', 'full_set.parquet.gzip'), table.schema) as writer:
+        with pq.ParquetWriter(processed_filepath, table.schema) as writer:
 
             while len(df) > 0:
                 table = process((df))
@@ -68,6 +68,10 @@ def basic_preprocess(tokenize=ef.get_tokenizer(), dataloader=ef.data_gen(), proc
 
 
 def preprocess_and_filter():
+    """
+    run preprocessing and data filtering, saving the intermediate steps
+    :return:
+    """
 
     if not (os.path.exists(PREPROCESSED_PATH) and os.path.exists(FASTTEXT_FILEPATH)):
         basic_preprocess(ef.get_tokenizer(), ef.data_gen())
@@ -78,7 +82,7 @@ def preprocess_and_filter():
 
     if not os.path.exists(COSINE_FILE):
         model = ef.load_embeddings(FASTTEXT_MODELPATH, get_model=True)
-        # keyvector = sum([model.get_word_vector(keyword) for keyword in KEYWORDS]) / len(KEYWORDS)
+
         keyvector = np.median(np.asarray([model.get_word_vector(keyword) for keyword in KEYWORDS]), axis=0)
         similarity = ef.get_similarity_measure(keyvector, model, tokenizer=None)
         print("Computing cosine similarities")
