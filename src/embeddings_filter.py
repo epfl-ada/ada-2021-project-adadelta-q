@@ -49,8 +49,6 @@ def data_gen(paths=None):
                 except StopIteration:
                     break
 
-def to_parquet(paths=None):
-    gen = data_gen(paths)
 
 
 def get_tokenizer(stemmer=nltk.stem.PorterStemmer(), stopwords=nltk.corpus.stopwords.words('english'),

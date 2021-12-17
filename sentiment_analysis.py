@@ -22,17 +22,15 @@ def get_dataset_as_dict(path='data/final_filtered.json.bz2'):
 
     return list_of_dict
 
-def get_labels(path='data/final_filtered.json.bz2'):
+def get_labels_from_df(df):
     # Initialize the zer-shot classifier (it will use the default model robert-large-mnli)
-    classifier = pipeline("zero-shot-classification",model='facebook/bart-large-mnli', device=0)
+    classifier = pipeline("zero-shot-classification", model='facebook/bart-large-mnli', device=0)
 
     # Crete the hypothesis we want to use
     hypotheses = "The sentiment of this quote is {}."
 
     # Create the labels
     the_labels = ["positive", "negative", "neutral"]
-    print("Reading data from "+path)
-    df = pandas.DataFrame(get_dataset_as_dict(path))
     print("Constructing Dataset")
     dataset = Dataset(pyarrow.Table.from_pandas(df))
     keys = KeyDataset(dataset, 'quotation')
@@ -41,13 +39,28 @@ def get_labels(path='data/final_filtered.json.bz2'):
                   tqdm(classifier(keys, the_labels, hypothesis_template=hypotheses, multi_label=True))]
 
     df['sentiment'] = classified
+    return df
+
+
+def get_labels(path='data/final_filtered.json.bz2'):
+    print("Reading data from "+path)
+    df = pandas.DataFrame(get_dataset_as_dict(path))
+    df = get_labels_from_df(df)
 
     return df
 
-def main():
+# def main():
+#     df = get_labels()
+#     df.to_parquet(os.path.join('data', 'final_w_sentiment.parquet.gzip'))
+#     # df.to_hdf(os.path.join('data', 'final_w_sentiment.h5'), key='df', mode='w')
+
+
+# if __name__ == "__main__":
+#     main()
+def get_and_save_labels():
     df = get_labels()
-    df.to_hdf(os.path.join('data', 'final_w_sentiment.h5'), key='df', mode='w')
-
-
-if __name__ == "__main__":
-    main()
+    try:
+        df.to_parquet(os.path.join('data', 'final_w_sentiment.parquet.gzip'))
+    except:
+        "Unable to save df"
+    return df

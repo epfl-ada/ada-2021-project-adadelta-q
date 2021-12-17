@@ -6,7 +6,7 @@ import pyarrow as pa
 import argparse
 from pyarrow import parquet as pq
 import pandas as pd
-
+import itertools
 
 def download_files():
 
@@ -16,19 +16,19 @@ def download_files():
             wget.download(link, filename)
 
 
-    for line in ef.data_gen():
-
-
 download_links = []
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--use_pretrained", type=bool)
     args = parser.parse_args()
-    if args.use_pretrained():
+    if args.use_pretrained:
+        raise NotImplementedError
         ## TODO:
         # - Download
         # - profit
+
     else:
 
         download_files()
@@ -40,15 +40,10 @@ def main():
         # - fasttext filter (+ Options?)
         # - sentiment analysis
         # - output parquet
-        gen = ef.data_gen()
-        table = pa.Table.from_pandas(pd.DataFrame(next(gen)))
-        print("writing dataset as parquet for fast processing")
-        with pq.ParquetWriter('full_set.parquet', table.schema) as writer:
 
-            for item in next(gen):
-                writer.write_table(table)
-                table = pa.Table.from_pandas(pd.DataFrame(next(item)))
-            writer.write_table(table)
+
+        print("writing dataset as parquet for fast processing")
+
 
 
 
