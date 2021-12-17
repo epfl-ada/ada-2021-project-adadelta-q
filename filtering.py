@@ -14,7 +14,7 @@ import pandas as pd
 OUT_PATH = 'data/final_filtered.json.bz2'  # location of the final .json output file
 
 PREPROCESSED_PATH = 'data/preprocessed.json.bz2'  # location to store preprocessed data (with tokens + basic filtered)
-PROBABILITY_THRESHOLD = 0.3  # Threshould to filter out 'too uncertain' speaker-quote match)
+PROBABILITY_THRESHOLD = 0.3  # Threshold to filter out 'too uncertain' speaker-quote match)
 FASTTEXT_FILEPATH = './data/fasttextfile.txt'  # filepath to the fasttext input file (tokenized, line-by-line)
 FASTTEXT_MODELPATH = './data/data.vec'  # where fasttext model should be saved/loaded
 KEYWORDS = ['stockmarket', 'stock', 'bonds', 'shares', 'obligations', 'finance']  # Keywords to compare against
@@ -22,65 +22,49 @@ KEYWORDS = ['stockmarket', 'stock', 'bonds', 'shares', 'obligations', 'finance']
 COSINE_THRESHOLD = 0.3  # similarity threshold
 COSINE_FILE = 'data/cosine.json.bz2'
 # Number of lines to process at one time (reduce if memory issues arise)
-N_LINES = 1000000
+N_LINES = 100000
 
 def basic_preprocess(tokenize=ef.get_tokenizer(), dataloader=ef.data_gen(), processed_filepath=PREPROCESSED_PATH,
                      fasttext_filepath=FASTTEXT_FILEPATH):
-    number_of_quotes = 0
-    dropped_none = 0
-    dropped_prob = 0
-    dropped_no_token = 0
-    gen = ef.data_gen()
+    """
+    implements basic preprocessing: remove unused rows and values, prepare fasttext input
+    :param tokenize:
+    :param dataloader:
+    :param processed_filepath:
+    :param fasttext_filepath:
+    :return: none, saves files directly to disk
+    """
+    gen = dataloader
 
 
     with open(fasttext_filepath, 'w') as fastfile:
         df = pd.DataFrame([x for _, x in zip(range(N_LINES), gen)])
+        print(df.columns)
 
         def process(df):
             df = df[df['speaker'] == 'None']
             df = df[df['probas'].apply(lambda x: float(x[0][1]) < PROBABILITY_THRESHOLD)]
+            print(df['quotation'])
             df['tokenized'] = df['quotation'].apply(lambda quote: tokenize(quote) + '\n')
             df.drop(columns=['probas', 'phase'], inplace=True)
             for token in df['tokenized']:
                 fastfile.write(token)
             return pa.Table.from_pandas(df)
+
         table = process(df)
+        print(table.schema)
+        print(df)
         with pq.ParquetWriter(os.path.join('data', 'full_set.parquet.gzip'), table.schema) as writer:
 
-
-
             while len(df) > 0:
-                writer.write_table(process((df)))
+                table = process((df))
+                print(len(table))
+                writer.write_table(table)
                 df = pd.DataFrame([x for _, x in zip(range(N_LINES), gen)])
             writer.write_table(process((df)))
-        #
-        # with bz2.open(processed_filepath, 'wb') as d_file:
-        #     for data in tqdm(dataloader):
-        #         number_of_quotes += 1
-        #
-        #         if data['speaker'] == 'None':
-        #             dropped_none += 1
-        #             continue
-        #         if float(data['probas'][0][1]) < PROBABILITY_THRESHOLD:
-        #             dropped_prob += 1
-        #             continue
-        #
-        #         token = tokenize(data['quotation']) + '\n'
-        #         if len(token) == 0:
-        #             dropped_no_token += 1
-        #             continue
-        #         del data['probas']
-        #         del data['phase']
-        #         fastfile.write(token)
-        #         data['tokenized'] = token
-        #         d_file.write((json.dumps(data) + '\n').encode('utf-8'))
+
     print('Finished initial Preprocessing')
-    # print("Total processed Quotees: ", number_of_quotes)
-    # print('Of which no speaker: ', dropped_none)
-    # print('Of which uncertain: ', dropped_prob)
-    # print('Of which not tokenizable: ', dropped_no_token)
-    #
-    # print("Total Quotes written: ", number_of_quotes - dropped_no_token - dropped_prob - dropped_none)
+
 
 
 def main():

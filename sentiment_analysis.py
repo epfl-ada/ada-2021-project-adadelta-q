@@ -23,6 +23,11 @@ def get_dataset_as_dict(path='data/final_filtered.json.bz2'):
     return list_of_dict
 
 def get_labels_from_df(df):
+    """
+    add sentiment (as string: 'positive', 'negative' or 'neutral') to the dataframe
+    :param df: dataframe
+    :return: dataframe with sentiment column added
+    """
     # Initialize the zer-shot classifier (it will use the default model robert-large-mnli)
     classifier = pipeline("zero-shot-classification", model='facebook/bart-large-mnli', device=0)
 
