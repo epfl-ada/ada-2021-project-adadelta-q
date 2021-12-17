@@ -102,16 +102,15 @@ Should be confirmed with [webiste](https://dlab.epfl.ch/teaching/fall2021/cs401/
    - [x] Preprocess stock  (remove irrelevant fields, ensure easy format for merging)
    - [x] Merge data
 5. Filter speakers that have low/now correlation with topic data
-   - [ ] Identify how, e.g. [Granger Causailty](https://en.wikipedia.org/wiki/Granger_causality)
+   - [x] Identify how, e.g. [Granger Causailty](https://en.wikipedia.org/wiki/Granger_causality)
 6. Compare speakers with each other
 7. Filter speakers that are *'shadowing'* other speakers.
 8. Review
-   - [ ] Critically identify biases and other issues with our pipeline
-   - [ ] Fix what can be fixed in the time given 
-   - [ ] [Report any issues related to Quotebank](https://docs.google.com/forms/d/e/1FAIpQLSfe14V9gKV3chVSC7_Y_mTIJz_YcvgbIaxGSESmH1kS9RbcZA/viewform)
+   - [x] Critically identify biases and other issues with our pipeline
+   - [x] Fix what can be fixed in the time given 
+   - [x] [Report any issues related to Quotebank](https://docs.google.com/forms/d/e/1FAIpQLSfe14V9gKV3chVSC7_Y_mTIJz_YcvgbIaxGSESmH1kS9RbcZA/viewform)
    - [ ] Final Notebook
    - [ ] Datastory
-
 
 ## Appendix
 
@@ -135,9 +134,18 @@ wget -i downloadables.txt
 ```
 will download all Quotebank data from 2015 to 2020.
 
-### Environment
+### Environment Setup using [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html)
+
 To setup, run:
 ```
-conda create --name <env> --file requirements.txt
+conda create --name <env> --file requirements.yml
 ```
-
+where `<env>` is the desired environment name.
+### Running the preprocessing code
+```shell
+conda activate <env>
+python main.py
+```
+This will download the entire dataset and run the entire preprocessing pipeline, including topic filtering and augmentation with sentiments.
+As the entire pipeline can take 24+ hours to finish and is subject to certain requirements, such as a cuda-capable GPU to finish in a reasonable timeframe, we have added the option to download the preprocessed data directly.
+Simply add the option `--use_pretrained` to download the filtered dataset directly.
