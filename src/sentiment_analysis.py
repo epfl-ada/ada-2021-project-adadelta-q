@@ -39,7 +39,7 @@ def get_labels_from_df(df):
     print("Constructing Dataset")
     dataset = Dataset(pyarrow.Table.from_pandas(df))
     keys = KeyDataset(dataset, 'quotation')
-    print("Running Inference")
+    print("Running Inference for Sentiment Analysis")
     classified = [quote['labels'][0] for quote in
                   tqdm(classifier(keys, the_labels, hypothesis_template=hypotheses, multi_label=True))]
 
@@ -48,6 +48,11 @@ def get_labels_from_df(df):
 
 
 def get_labels(path='data/final_filtered.json.bz2'):
+    """
+    wrapper function to retrieve the labels
+    :param path:
+    :return:
+    """
     print("Reading data from "+path)
     df = pandas.DataFrame(get_dataset_as_dict(path))
     df = get_labels_from_df(df)
@@ -63,6 +68,10 @@ def get_labels(path='data/final_filtered.json.bz2'):
 # if __name__ == "__main__":
 #     main()
 def get_and_save_labels():
+    """
+    wrapper function to automate read/writing
+    :return:
+    """
     df = get_labels()
     try:
         df.to_parquet(os.path.join('data', 'final_w_sentiment.parquet.gzip'))

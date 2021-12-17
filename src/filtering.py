@@ -67,11 +67,11 @@ def basic_preprocess(tokenize=ef.get_tokenizer(), dataloader=ef.data_gen(), proc
 
 
 
-def main():
-    # if not (os.path.exists(PREPROCESSED_PATH) and os.path.exists(FASTTEXT_FILEPATH)):
+def preprocess_and_filter():
 
-    basic_preprocess(ef.get_tokenizer(), ef.data_gen())
-    return
+    if not (os.path.exists(PREPROCESSED_PATH) and os.path.exists(FASTTEXT_FILEPATH)):
+        basic_preprocess(ef.get_tokenizer(), ef.data_gen())
+
     # fasttext training
     if not os.path.exists(FASTTEXT_MODELPATH):
         ef.setup_and_train_fasttext_data(ef.data_gen(), filepath=FASTTEXT_FILEPATH, modelpath=FASTTEXT_MODELPATH)
@@ -105,6 +105,3 @@ def main():
                     d_file.write((json.dumps(data) + '\n').encode('utf-8'))
         print("Finished Preprocessing, final number of quotes:", final_count)
 
-
-if __name__ == "__main__":
-    main()
