@@ -1,6 +1,6 @@
 # ADADELTA-Q Project Repository: 'Whose Sentiment towards the Market influences the Market Sentiment?'
 This is the group project repository for the group ADADELTA-Q of the EPFL Applied Data Analysis (2021) course.
-## [Datastory Here](https://github.com/sreding/adadeltaq-finstory)
+## [Datastory Here](https://sreding.github.io/adadeltaq-finstory/)
 ## Table of Contents
 1. [Abstract](#abstract)
 2. [Research Questions](#research-questions)
