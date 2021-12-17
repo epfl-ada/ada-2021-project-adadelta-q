@@ -3,8 +3,8 @@ This is the group project repository for the group ADADELTA-Q of the EPFL Applie
 ## Table of Contents
 1. [Abstract](#abstract)
 2. [Research Questions](#research-questions)
-3. [Proposed Additional Datasets](#proposed-additional-datasets)
-4. [Methods](#methods)
+3. [Data](#proposed-additional-datasets)
+4. [Methodology](#methods)
 5. [Proposed Timeline](#proposed-timeline)
 6. [Organization within the Team](#organization-within-team)
 7. [Appendix](#appendix)
