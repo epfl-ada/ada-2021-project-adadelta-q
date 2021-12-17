@@ -35,22 +35,24 @@ def basic_preprocess(tokenize=ef.get_tokenizer(), dataloader=ef.data_gen(), proc
 
     with open(fasttext_filepath, 'w') as fastfile:
         df = pd.DataFrame([x for _, x in zip(range(N_LINES), gen)])
-        table = pa.Table.from_pandas(df)
+
+        def process(df):
+            df = df[df['speaker'] == 'None']
+            df = df[df['probas'].apply(lambda x: float(x[0][1]) < PROBABILITY_THRESHOLD)]
+            df['tokenized'] = df['quotation'].apply(lambda quote: tokenize(quote) + '\n')
+            df.drop(columns=['probas', 'phase'], inplace=True)
+            for token in df['tokenized']:
+                fastfile.write(token)
+            return pa.Table.from_pandas(df)
+        table = process(df)
         with pq.ParquetWriter(os.path.join('data', 'full_set.parquet.gzip'), table.schema) as writer:
-            def process_and_write(df):
-                df.drop(df['speaker'] == 'None',inplace=True)
-                df.drop(df['probas'].apply(lambda x : float(x[0][1]) < 0.3),inplace=True)
-                df['tokenized'] = df['quotation'].apply(lambda quote : tokenize(quote)+'\n')
-                df.drop(columns=['probas','phase'], inplace=True)
-                for token in df['tokenized'].iterrows():
-                    fastfile.write(token)
-                writer.write_table(pa.Table.from_pandas(df))
+
 
 
             while len(df) > 0:
-                process_and_write(df)
+                writer.write_table(process((df)))
                 df = pd.DataFrame([x for _, x in zip(range(N_LINES), gen)])
-            process_and_write(df)
+            writer.write_table(process((df)))
         #
         # with bz2.open(processed_filepath, 'wb') as d_file:
         #     for data in tqdm(dataloader):
