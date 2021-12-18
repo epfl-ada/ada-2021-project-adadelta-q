@@ -1,11 +1,12 @@
 # ADADELTA-Q Project Repository: 'Whose Sentiment towards the Market influences the Market Sentiment?'
 This is the group project repository for the group ADADELTA-Q of the EPFL Applied Data Analysis (2021) course.
-## [Datastory Here](https://sreding.github.io/adadeltaq-finstory/)
+### Find the [Datastory](https://sreding.github.io/adadeltaq-finstory/) and our [Notebook](AdadeltaQ_project.ipynb)
+Please note that some figures from plotly are not visible direcly on github in the notebook but can be seen in the datastory.
 ## Table of Contents
 1. [Abstract](#abstract)
 2. [Research Questions](#research-questions)
-3. [Data used](#Data)
-4. [Methodology](#Methodology)
+3. [Data used](#data)
+4. [Methodology](#methodology)
 5. [Proposed Timeline](#proposed-timeline)
 6. [Organization within the Team](#organization-within-team)
 7. [Appendix](#appendix)
@@ -123,13 +124,13 @@ The work was never soley done by a subset of the team.
 ```
 ada-2021-project-adadelta-q
 │   README.md
-│   filtering.py    # filtering script to process entire dataset
-│   filtering_tests.ipynb    # some basic tests on filtering
-│   sentiment_analyisis.ipynb # Sentiment analiysis tetss
-│   S\&P500_analysis.ipynb # Stock data trials
+│   AdadeltaQ_project.ipynb # final notebook
+|   main.py # run preprocessing
 └───data  # store data here (will be ignored by git)
 │   
 └───src    # for supporting code
+│   
+└───topic_notebooks    # old notebooks
 ```
 ### Downloading Data
 On any linux system with wget:
